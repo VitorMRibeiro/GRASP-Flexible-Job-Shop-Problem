@@ -63,16 +63,11 @@ int main(int argc, char** argv)
 		// construção de uma solução inicial.
 		contrucaoGulosaAleatoriaLRC(maquinas, operacoes, jobs);
 
-		std::cout << "contrucao " << GetCounter() << std::endl;
-
 		// cria grafo disjuntivo para o problema.
 		grafoDisjuntivo grafo(Qt_Total_Operacoes);
 
 		colocaArestaConjuntiva(&grafo, jobs, operacoes);
 		colocaArestaDisjuntiva(&grafo, maquinas, operacoes);
-
-
-		std::cout << "criar grafo com arestas: " << GetCounter() << std::endl;
 
 		// calcula o makespam para solucao inicial.
 		Pilha_Ordem_Topologica = orderarTopologico(grafo);
@@ -85,12 +80,6 @@ int main(int argc, char** argv)
 		{
 			std::cout << "grafo com ciclo\n";
 		}
-
-
-		std::cout << "calcular makespam: " << GetCounter() << std::endl;
-
-		//std::cout << "solucao construida: " << melhorSolucaoBusca << std::endl;
-
 
 		// busca local.
 		do
@@ -110,11 +99,6 @@ int main(int argc, char** argv)
 			melhorSolucaoBusca = Vetor_Distancia[grafo.Fim];
 		}
 		while (melhorou);
-
-
-
-		std::cout << "busca local: " << GetCounter() << std::endl;
-		system("pause");
 
 		if (melhorSolucaoBusca < melhorSolucaoFinal)
 			melhorSolucaoFinal = melhorSolucaoBusca;
