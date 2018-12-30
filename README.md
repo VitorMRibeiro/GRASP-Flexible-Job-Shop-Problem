@@ -1,5 +1,5 @@
 # GRASP-Flexible-Job-Shop-Problem
-A GRASP implementation for the Flexible Job Shop Problem. It renders a Gantt Chart for the best solution found using OpenGL.
+ Implementa a meta-heuristica GRASP para resolver o problema Flexible-Job-Shop-Problem, ao finalizar a busca renderiza um gráfico de gantt representando a melhor solução encontrada.
 
 
 ![GanttChartExemple](GanttChartExemple.png)
