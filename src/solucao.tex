@@ -1,8 +1,0 @@
-		
-
-		Sobre a implementação do GRASP para o FJSP		
-
-	
-        Durante a leitura da instância do FJSP, os dados de cada máquina, job e operação são salvos em vetores das respectivas estruturas que contém os campos necessários para descrevê-los, essas estruturas serão então usadas na construção do grafo disjuntivo, o grafo disjuntivo será usado para a maior parte do processamento posterior. 
-    
-        A fase construtiva da implementação do GRASP usa como critério de avaliação a posição na sequência tecnológica do job de cada operação, avaliando melhor as operações com menor posição na sequência tecnológica, dessa forma, a construção tende a colocar as operações iniciais dos jobs primeiro nas sequências das máquinas. Vizinhos são definidos como soluções a uma permutação na sequência de uma máquina de distancia da solução atual, o método de busca utilizado é o da melhor melhora.

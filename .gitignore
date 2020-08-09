@@ -1,5 +1,11 @@
 *.d
 obj/*
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
 src/include/*.gch
 exec
 .vscode

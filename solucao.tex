@@ -1,0 +1,79 @@
+\documentclass{article}
+
+\usepackage{hyperref}
+
+\begin{document}
+
+\section{GRASP}
+
+GRASP, \emph{Greedy Randomized Adaptative Search}, é um arcabouço geral pra 
+solução de problemas de otimização. O emprego da meta-heurística GRASP na
+resolução de um problema consiste em:
+
+\begin{enumerate}
+    \item Construir de uma solução inicial viável usando uma heurística gulosa
+    \item Buscar soluções melhores em torno da vizinhança da solução contruida.
+\end{enumerate}
+
+Estes dois procedimentos são repetidos quantas vezes se julgar adequado. Os 
+metódos e heurísticas utilizados na construção da solução inicial variam de 
+problema pra problema, bem como a definição de vizinhança de uma solução.
+
+\section{Fase construtiva}
+
+A fase construtiva da minha implementação do GRASP para o \textbf{FJSP}
+aloca uma operação em uma máquina de cada vez até que todas as operações
+tenham sido alocadas. No caso de operações que podem ser delegadas a mais
+de uma máquina, uma das máquinas é escolhida aleatoriamente; tornando
+cada iteração do GRASP em uma instância de \textbf{JSP} diferente.
+
+Quando se escolhe qual a próxima operação vai ser alocada, essa escolha 
+deve ser limitada as primeiras operações na sequência tecnológica de 
+cada job para evitar quebras de restrição que levariam a soluções não
+viáveis. Cada operação recebe um valor de acordo uma heurística, as \emph{n}
+melhores são colocadas numa lista restritiva, de onde é escolhida, aleatoriamente,
+a próxima operação alocada.
+
+A heurística utilizada para avaliar as operação é sua ordem na sequencia tecnológica
+do respectivo \emph{job}, índices menores são melhor avaliados. Dessa forma,
+a construção tende a alocar as operações inicias dos \emph{jobs} - aquelas das 
+quais o restante das operações do \emph{job} depende - primeiro.
+
+\section{Busca local}
+
+Uma solução está completamente especificada quando é definida uma orientação
+para todos os arcos disjuntivos do grafo disjuntivo. São consideradas
+vizinhas de uma solução, todas as soluções que estão a uma inversão de
+arco disjuntivo de distância.  
+
+A busca local implementada aqui consiste em avaliar todos os vizinhos de uma 
+solução e escolher o melhor, melhor aqui significa aquele que tem o menor 
+caminho crítico da origem do grafo disjuntivo até o fim, o melhor vizinho 
+se torna a solução corrente e uma nova busca local é realizada em torno de
+seus vizinhos. Quando a busca local não encontra nenhuma solução melhor que 
+a solução corrente, o processo para, e uma nova iteração do GRASP é iniciada.
+
+O caminho crítico é o maior caminho simples da origem até o fim do grafo 
+disjuntivo. O caminho crítico é calculado usando uma mistura em um único
+loop do algoritmo de Tarjan para componentes fortemente conectados \cite{tarjan},
+ordenamento topologico \cite{Cormem} e maior caminho em um DAG \cite{longestPath}.
+
+
+
+\bibliographystyle{plain}
+\begin{thebibliography}{9}
+    \bibitem{tarjan} 
+    https://en.wikipedia.org/wiki/Tarjan\%27s\_strongly\_connected\_components\_algorithm
+    
+    \bibitem{longestPath} 
+    https://en.wikipedia.org/wiki/Longest\_path\_problem
+    
+    \bibitem{Cormem} 
+    Thomas  H. Cormem - Introduction to Algorithms, secção 22.4 Topological sort
+
+\end{thebibliography}
+
+\end{document}
+
+
+
