@@ -1,97 +1,100 @@
 #include"include/graph_util.h"
+#include<unordered_set>
+#include<vector>
+#include<iostream>
 #include<climits>
+#include<cstring>
+#include<algorithm>
 
 // utilitarios para grafos
 
-// retorna falso se encontrar um ciclo.
-bool ordenarTopologicoAux(grafoDisjuntivo grafo, int v, bool visitados[], bool visitadosLocal[], std::stack<int>* Pilha)
-{
-	visitados[v] = true;
-	visitadosLocal[v] = true;
-	for (int i = 0; i < grafo.Tamanho; i++)
-	{
-		if (grafo.MatrizAdjacencia[v][i] != -1)
-		{
-			if (!visitadosLocal[i])
-			{
-				if (!visitados[i])
-				{
-					if (ordenarTopologicoAux(grafo, i, visitados, visitadosLocal, Pilha) == false)
-					{
-						return false;
-					}
-				}
+void printGrafo(grafoDisjuntivo grafo){
+	for(int i = 0; i < grafo.Tamanho; i++){
+		for(int j = 0; j < grafo.Tamanho; j++){
+			if(grafo.MatrizAdjacencia[i][j] == -1){
+				std::cout << "-" << ",";
 			}
-			else
-			{
-				return false;
+			else{
+				std::cout << grafo.MatrizAdjacencia[i][j] << ",";
 			}
 		}
+		std::cout << std::endl;
 	}
-	Pilha->push(v);
-	visitadosLocal[v] = false;
+}
+
+bool DFS(int* tarjan_vetex_index, int* tarjan_lowlink, int& tarjan_min_index, grafoDisjuntivo &grafo, std::stack<int> &Pilha, int indice){
+	tarjan_min_index++;
+	
+	//std::cout << indice << std::endl;
+
+	tarjan_vetex_index[indice] = tarjan_min_index;
+	tarjan_lowlink[indice] = tarjan_min_index;
+
+	for(int i = 0; i < grafo.Tamanho; i++){
+		if(grafo.MatrizAdjacencia[indice][i] != -1 && tarjan_vetex_index[i] == 0){
+			DFS(tarjan_vetex_index, tarjan_lowlink, tarjan_min_index, grafo, Pilha, i);
+
+			tarjan_lowlink[indice] = std::min(tarjan_lowlink[indice], tarjan_lowlink[i]);
+		}
+		else{
+			tarjan_lowlink[indice] = std::min(tarjan_lowlink[indice], tarjan_vetex_index[i]);
+		}
+	}
+
+	Pilha.push(indice);
+
+	if(tarjan_lowlink[indice] == tarjan_vetex_index[indice]){
+		std::cout << "ordenarTopologico: grafo com ciclo\n";
+		return false;
+	}
 	return true;
 }
 
-// salva ordem topologica do grafo em uma pilha; caso encontre um ciclo retorna uma pilha vazia.
-std::stack<int>* orderarTopologico(grafoDisjuntivo grafo)
-{
-	std::stack<int>* Pilha = new std::stack<int>;
-	bool* visitados = new bool[grafo.Tamanho];
-	bool* visitadosLocal = new bool[grafo.Tamanho];
+// Ordena o grafo topologicamente e procura por ciclos.
+std::stack<int> orderarTopologico(grafoDisjuntivo grafo){
+	std::stack<int> Pilha;
+	std::stack<int> tarjan_stack;
+	int* tarjan_vetex_index;
+	int* tarjan_lowlink;
+	int tarjan_min_index = 0;
 
-	for (int i = 0; i < grafo.Tamanho; i++)
-	{
-		visitados[i] = false;
-		visitadosLocal[i] = false;
-	}
+	//printGrafo(grafo);
 
-	for (int i = 0; i < grafo.Tamanho; i++)
-	{
-		if (visitados[i] == false)
-		{
-			if (ordenarTopologicoAux(grafo, i, visitados, visitadosLocal, Pilha) == false)
-			{
-				// esvazia a pilha e retorna a pilha vazia.
-				while (!Pilha->empty())
-				{
-					Pilha->pop();
-				}
-				return Pilha;
-			}
-		}
+	tarjan_vetex_index = new int[grafo.Tamanho];
+	tarjan_lowlink = new int[grafo.Tamanho];
+
+	memset(tarjan_vetex_index, 0, sizeof(int) * grafo.Tamanho);
+
+	if(DFS(tarjan_vetex_index, tarjan_lowlink, tarjan_min_index, grafo, Pilha, grafo.Origem)){
+		//std::cout << "ela ja nao e mais a minha pequena que pena que pena aaaaaaaaaa\n";
+		delete(tarjan_vetex_index);
+		delete(tarjan_lowlink);
+		
+		return Pilha;
 	}
-	return Pilha;
+	return std::stack<int>();
 }
 
+
 // calcula a maior distancia da origem para cada vertice de um grafo ordenado.
-int* maiorDistancia(grafoDisjuntivo grafo, std::stack<int>* Pilha_Ord_Topologica, int Origem)
-{
+int* maiorDistancia(grafoDisjuntivo grafo, std::stack<int> Pilha_Ord_Topologica, int Origem){
 	int* MaiorDistancia = new int[grafo.Tamanho];
 	;
 	// inicia todas as distancias como -infinito.
-	for (int i = 0; i < grafo.Tamanho; i++)
-	{
-		MaiorDistancia[i] = INT_MIN;
-	}
+	memset(MaiorDistancia, INT_MIN, sizeof(int) * grafo.Tamanho);
 	MaiorDistancia[Origem] = 0;
 
-	while (Pilha_Ord_Topologica->empty() == false)
-	{
+	while (Pilha_Ord_Topologica.empty() == false){
 		// pega o proximo vertice em ordem topologica.
-		int v = Pilha_Ord_Topologica->top();
-		Pilha_Ord_Topologica->pop();
+		int v = Pilha_Ord_Topologica.top();
+		Pilha_Ord_Topologica.pop();
 
 		// atualiza as distancias dos vertices adjacentes se necessario.
-		if (MaiorDistancia[v] != INT_MIN)
-		{
-			for (int i = 0; i < grafo.Tamanho; i++)
-			{
-				if (grafo.MatrizAdjacencia[v][i] != -1)
-				{
+		if (MaiorDistancia[v] != INT_MIN){
+			for (int i = 0; i < grafo.Tamanho; i++){
+				if (grafo.MatrizAdjacencia[v][i] != -1){
 					// se a maior distacia atual ate i for menor que a maior distacia ate v somada a distacia de v para i, atualiza a maior distancia para i.
-					if (MaiorDistancia[i] < MaiorDistancia[v] + grafo.MatrizAdjacencia[v][i])
-					{
+					if (MaiorDistancia[i] < MaiorDistancia[v] + grafo.MatrizAdjacencia[v][i]){
 						MaiorDistancia[i] = MaiorDistancia[v] + grafo.MatrizAdjacencia[v][i];
 					}
 				}

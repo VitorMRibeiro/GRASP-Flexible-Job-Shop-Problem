@@ -3,8 +3,7 @@
 
 // cria e gerencia os eventos da janela onde sera desenhado o grafico de gantt
 
-Display::Display(int width, int height, std::string title)
-{
+Display::Display(int width, int height, std::string title){
 	// inicializa o SDL.
 	SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -30,8 +29,7 @@ Display::Display(int width, int height, std::string title)
 	
 	// inicializa o glew.
 	GLenum status = glewInit();
-	if (status != GLEW_OK)
-	{
+	if (status != GLEW_OK){
 		std::cout << "failed to initialize glew\n";
 		return;
 	}
@@ -63,22 +61,23 @@ Display::Display(int width, int height, std::string title)
 	glGetShaderiv(Shaders[1], GL_COMPILE_STATUS, &FStatus);
 	//std::cerr << "Vertex shader status: " << VStatus << std::endl;
 	//std::cerr << "Fragment shader status: " << FStatus << std::endl;
-	if (VStatus == GL_FALSE)
-	{
+
+	if (VStatus == GL_FALSE){
 		std::cerr << "Vertex Shader Compilation erro!\n";
 		GLchar* infoLog = new GLchar[512];
 		GLsizei* length;
 		glGetShaderInfoLog(Shaders[0], 512 * sizeof(GLchar), length, infoLog);
 		std::cout << infoLog << std::endl;
 	}
-	if (FStatus == GL_FALSE)
-	{
+
+	if (FStatus == GL_FALSE){
 		std::cerr << "fragment Shader Compilation erro!\n";
 		GLchar* infoLog = new GLchar[512];
 		GLsizei* length;
 		glGetShaderInfoLog(Shaders[1], 512 * sizeof(GLchar), length, infoLog);
 		std::cout << infoLog << std::endl;
 	}
+	
 	// cria programa.
 	Program = glCreateProgram();
 	glAttachShader(Program, Shaders[0]);
@@ -87,8 +86,7 @@ Display::Display(int width, int height, std::string title)
 
 	// verifica erro.
 	glGetProgramiv(Program, GL_LINK_STATUS, &VStatus);
-	if (VStatus == GL_FALSE)
-	{
+	if (VStatus == GL_FALSE){
 		std::cerr << "Linking error\n";
 	}
 
@@ -100,8 +98,7 @@ Display::Display(int width, int height, std::string title)
 }
 
 
-Display::~Display()
-{
+Display::~Display(){
 	glDeleteShader(Shaders[0]);
 	glDeleteShader(Shaders[1]);
 	glDeleteProgram(Program);
@@ -110,20 +107,16 @@ Display::~Display()
 	SDL_Quit();
 }
 
-Command Display::Update()
-{
+Command Display::Update(){
 	SDL_GL_SwapWindow(window);
 	SDL_Event event;
-	while (SDL_PollEvent(&event))
-	{
-		if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE)
-		{
+	while (SDL_PollEvent(&event)){
+		if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE){
 			std::cout << "Quit\n";
 			isClosed = true;
 			return Command::Nothing;
 		}
-		switch (event.key.keysym.sym)
-		{
+		switch (event.key.keysym.sym){
 		default:
 			return Command::Nothing;
 			break;
@@ -132,13 +125,11 @@ Command Display::Update()
 	return Command::Nothing;
 }
 
-bool Display::getIsClosed()
-{
+bool Display::getIsClosed(){
 	return isClosed;
 }
 
-void Display::Clear(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
-{
+void Display::Clear(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){
 	glClearColor(red, green, blue, alpha);
 	glClear(GL_COLOR_BUFFER_BIT);
 }	

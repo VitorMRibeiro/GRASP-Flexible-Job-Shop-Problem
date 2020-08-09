@@ -3,8 +3,7 @@
 
 // abstração do OpenGL para desenhar retangulos na tela  
 
-glRectangle::glRectangle(GLfloat xPos, GLfloat yPos, GLfloat xSize, GLfloat ySize)
-{
+glRectangle::glRectangle(GLfloat xPos, GLfloat yPos, GLfloat xSize, GLfloat ySize){
 	XPos = xPos;
 	YPos = yPos;
 	XSize = xSize;
@@ -57,8 +56,7 @@ glRectangle::glRectangle(GLfloat xPos, GLfloat yPos, GLfloat xSize, GLfloat ySiz
 	//debug.
 	GLenum Status;
 	Status = glGetError();
-	switch (Status)
-	{
+	switch (Status){
 	case GL_NO_ERROR:
 		break;
 	case GL_INVALID_ENUM:
@@ -83,8 +81,7 @@ glRectangle::glRectangle(GLfloat xPos, GLfloat yPos, GLfloat xSize, GLfloat ySiz
 }
 
 
-glRectangle::~glRectangle()
-{
+glRectangle::~glRectangle(){
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
@@ -92,8 +89,7 @@ glRectangle::~glRectangle()
 	glDeleteBuffers(1, &Buffer);
 }
 
-void glRectangle::DrawRectangle()
-{
+void glRectangle::DrawRectangle(){
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
@@ -102,8 +98,7 @@ void glRectangle::DrawRectangle()
 
 
 
-void glRectangle::ChangeRectanglePos(GLfloat NewXPos, GLfloat NewYPos)
-{
+void glRectangle::ChangeRectanglePos(GLfloat NewXPos, GLfloat NewYPos){
 	XPos = NewXPos;
 	YPos = NewYPos;
 	vertices[0] = XPos + SizeRedc;
@@ -125,13 +120,11 @@ void glRectangle::ChangeRectanglePos(GLfloat NewXPos, GLfloat NewYPos)
 	return;
 }
 
-void glRectangle::ChangeRectangleSize(GLfloat, GLfloat)
-{
+void glRectangle::ChangeRectangleSize(GLfloat, GLfloat){
 	return;
 }
 
-void glRectangle::ChangeSizeRedc(GLfloat newValue)
-{
+void glRectangle::ChangeSizeRedc(GLfloat newValue){
 	SizeRedc = newValue;
 	vertices[0] = XPos + SizeRedc;
 	vertices[1] = YPos - SizeRedc;
@@ -151,8 +144,7 @@ void glRectangle::ChangeSizeRedc(GLfloat newValue)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void glRectangle::DesenhaContorno()
-{
+void glRectangle::DesenhaContorno(){
 	verticesContorno[0] = vertices[0];
 	verticesContorno[1] = vertices[1];
 	verticesContorno[2] = vertices[2];

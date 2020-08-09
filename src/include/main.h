@@ -36,7 +36,7 @@ void contrucaoGulosaAleatoriaLRC(std::vector<maquina>& maquinas, std::vector<op>
 
 bool mover(grafoDisjuntivo * grafo, std::vector<op> operacoes, std::vector<maquina>& maquinas, unsigned int indiceM, unsigned int indice1, unsigned int indice2);
 
-int * melhorMelhora(std::vector<maquina>& maquinas, std::vector<op> operacoes, grafoDisjuntivo* grafo, int melhorSolucao);
+int * melhorMelhora(std::stack<int>& ord_topologico_global, std::vector<maquina>& maquinas, std::vector<op> operacoes, grafoDisjuntivo* grafo, int melhorSolucao);
 
 void colocaArestaConjuntiva(grafoDisjuntivo* grafo, std::vector<job> jobs, std::vector<op> operacoes);
 

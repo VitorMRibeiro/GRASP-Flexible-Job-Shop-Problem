@@ -7,15 +7,21 @@
 #define ALPHA 0.5
 int TAMANHO_LISTA_RESTRITIVA;
 
+void printStack(std::stack<int> pilha){
+	// percorrer o ordenamento topologico
+	while(!pilha.empty()){
+		std::cout << pilha.top() << std::endl;
+		pilha.pop();
+	}
+}
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
 	int Qt_Total_Operacoes = 0;
 	std::vector<maquina> maquinas;
 	std::vector<job> jobs;
 	std::vector<op> operacoes;
 	std::vector<int> operacoesFlexiveis;       // guarda quais operacoes sao flexiveis.
-	std::stack<int>* Pilha_Ordem_Topologica;   // guarda a ordem topologica de um grafo.
+	std::stack<int> Pilha_Ordem_Topologica;   // guarda a ordem topologica de um grafo.
 	int* Vetor_Distancia;                      // guarda as distancias da origem para cada vertice.
 	int melhorSolucaoBusca = INT_MAX;
 	int melhorSolucaoFinal = INT_MAX;
@@ -23,23 +29,13 @@ int main(int argc, char** argv)
 	bool melhorou = false;
 	int* Aux;
 
-	srand((unsigned int)time(NULL));
+	std::string instancia = std::string(argv[1]);
 
-	std::cout << "Nome da instancia: ";
-	std::cin >> NomeArquivo;
-
-	if (NomeArquivo.length() > 4)
-	{
-		if (NomeArquivo[NomeArquivo.length() - 1] != 't' ||
-			NomeArquivo[NomeArquivo.length() - 2] != 'x' ||
-			NomeArquivo[NomeArquivo.length() - 3] != 't' ||
-			NomeArquivo[NomeArquivo.length() - 4] != '.')
-
-			NomeArquivo.append(".txt");
+	if( instancia == "mt06" || instancia == "mt10" || instancia == "mt20"){
+		NomeArquivo = instancia + ".txt";
 	}
-	else
-	{
-		NomeArquivo.append(".txt");
+	else{
+		std::cout << "instancia invalida, escolha uma das opções: mt06, mt10, mt20";
 	}
 
 	if (!leitura(NomeArquivo, maquinas, &Qt_Total_Operacoes, jobs, operacoes)) { return 0; }
@@ -47,8 +43,7 @@ int main(int argc, char** argv)
 	TAMANHO_LISTA_RESTRITIVA = jobs.size() * ALPHA;
 
 	// iteracao do GRASP.
-	for (int i = 0; i < 100; i++)
-	{
+	for (int i = 0; i < 100; i++){
 		// construcao de uma solucao inicial.
 		contrucaoGulosaAleatoriaLRC(maquinas, operacoes, jobs);
 
@@ -60,28 +55,23 @@ int main(int argc, char** argv)
 
 		// calcula o makespam para solucao inicial.
 		Pilha_Ordem_Topologica = orderarTopologico(grafo);
-		if (!Pilha_Ordem_Topologica->empty())
-		{
+		if (!Pilha_Ordem_Topologica.empty()){
 			Vetor_Distancia = maiorDistancia(grafo, Pilha_Ordem_Topologica, grafo.Origem);
 			melhorSolucaoBusca = Vetor_Distancia[grafo.Fim];
 		}
-		else
-		{
+		else{
 			std::cout << "grafo com ciclo\n";
 		}
 
 		// busca local.
-		do
-		{
-			Aux = melhorMelhora(maquinas, operacoes, &grafo, melhorSolucaoBusca);
-			if (Aux != NULL)
-			{
+		do{
+			Aux = melhorMelhora(Pilha_Ordem_Topologica, maquinas, operacoes, &grafo, melhorSolucaoBusca);
+			if (Aux != NULL){
 				delete(Vetor_Distancia);
 				Vetor_Distancia = Aux;
 				melhorou = true;
 			}
-			else
-			{
+			else{
 				melhorou = false;
 			}
 
@@ -89,17 +79,14 @@ int main(int argc, char** argv)
 		}
 		while (melhorou);
 
-		if (melhorSolucaoBusca < melhorSolucaoFinal)
-		{
+		if (melhorSolucaoBusca < melhorSolucaoFinal){
 			melhorSolucaoFinal = melhorSolucaoBusca;
 		}
 
 		// limpa sequencia de operacoes das maquinas.
-		for (std::vector<maquina>::iterator i = maquinas.begin(); i != maquinas.end(); i++)
-		{
+		for (std::vector<maquina>::iterator i = maquinas.begin(); i != maquinas.end(); i++){
 			i->Sequencia_Operacoes.clear();
 		}
-		delete(Pilha_Ordem_Topologica);
 		std::cout << "makespam: " << melhorSolucaoFinal << std::endl;
 	}
 
@@ -109,8 +96,7 @@ int main(int argc, char** argv)
 	parametros.category_Quantity = jobs.size();
 	parametros.line_Quantity = maquinas.size();
 	parametros.total_Units = Vetor_Distancia[Qt_Total_Operacoes + 1];
-	for (unsigned int i = 0; i < operacoes.size(); i++)
-	{
+	for (unsigned int i = 0; i < operacoes.size(); i++){
 		elemento.beginning = Vetor_Distancia[i];
 		elemento.category = operacoes[i].job;
 		elemento.line = operacoes[i].maquina_Atual;
@@ -122,8 +108,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-bool leitura(std::string NomeArquivo, std::vector<maquina>& maquinas, int* Qt_Total_Operacoes, std::vector<job>& jobs, std::vector<op>& operacoes)
-{
+bool leitura(std::string NomeArquivo, std::vector<maquina>& maquinas, int* Qt_Total_Operacoes, std::vector<job>& jobs, std::vector<op>& operacoes){
 	int Qt_Jobs, Qt_Maquinas;
 	int Qt_Operacoes = 0;
 	int Qt_Maquinas_Disponiveis = 0;
@@ -137,30 +122,23 @@ bool leitura(std::string NomeArquivo, std::vector<maquina>& maquinas, int* Qt_To
 	//leitura.
 	// abre o arquivo com a instancia do problema.
 	arq.open(NomeArquivo, std::ifstream::in);
-	if (arq.is_open())
-	{
+	if (arq.is_open()){
 		arq >> Qt_Jobs;
-		arq >> Qt_Maquinas;
-		{
+		arq >> Qt_Maquinas;{
 			maquina Maquina;
-			for (int i = 0; i < Qt_Maquinas; i++)
-			{
+			for (int i = 0; i < Qt_Maquinas; i++){
 				maquinas.push_back(Maquina);
 			}
 		}
 		arq.ignore(999, '\n');
-		for (int k = 0; k < Qt_Jobs; k++) //cada iteracao le os dados de um job.
-		{
+		for (int k = 0; k < Qt_Jobs; k++){ //cada iteracao le os dados de um job.
 			Contador_Seq_Tec = 0;
 			arq >> Qt_Operacoes;
-			for (int i = 0; i < Qt_Operacoes; i++) // cada iteracao le os dados de uma operacao.
-			{
-				if (i != Qt_Operacoes - 1)
-				{
+			for (int i = 0; i < Qt_Operacoes; i++){ // cada iteracao le os dados de uma operacao.
+				if (i != Qt_Operacoes - 1){
 					jobAux.Sequencia_tecnologica.push_back(*Qt_Total_Operacoes);
 				}
-				else
-				{
+				else{
 					jobAux.Sequencia_tecnologica.push_back(*Qt_Total_Operacoes);
 					jobs.push_back(jobAux);
 					jobAux.Sequencia_tecnologica.clear();
@@ -169,13 +147,7 @@ bool leitura(std::string NomeArquivo, std::vector<maquina>& maquinas, int* Qt_To
 				operacaoAux.Posicao_Tecnogica = Contador_Seq_Tec;
 				operacaoAux.maquinas.clear();
 				arq >> Qt_Maquinas_Disponiveis;
-				// se a operacao tem mais de uma maquina disponivel, ela é marcada como flexivel.
-				/*if (Qt_Maquinas_Disponiveis > 1)
-				{
-					operacoesFlexiveis.push_back(Qt_Total_Operacoes);
-				}*/
-				for (int j = 0; j < Qt_Maquinas_Disponiveis; j++) // cada iteracao le os dados de uma maquina disponivel para a operacao.
-				{
+				for (int j = 0; j < Qt_Maquinas_Disponiveis; j++){ // cada iteracao le os dados de uma maquina disponivel para a operacao.
 					arq >> Maquina;
 					arq >> Peso;
 					operacaoAux.job = k;
@@ -188,8 +160,7 @@ bool leitura(std::string NomeArquivo, std::vector<maquina>& maquinas, int* Qt_To
 			}
 		}
 	}
-	else
-	{
+	else{
 		std::cout << "falha na leitura do arquivo";
 		return false;
 	}
@@ -197,8 +168,7 @@ bool leitura(std::string NomeArquivo, std::vector<maquina>& maquinas, int* Qt_To
 	return true;
 }
 
-void contrucaoGulosaAleatoriaLRC(std::vector<maquina>& maquinas, std::vector<op>& operacoes, std::vector<job> jobs)
-{
+void contrucaoGulosaAleatoriaLRC(std::vector<maquina>& maquinas, std::vector<op>& operacoes, std::vector<job> jobs){
 	bool* op_usadas;
 	std::vector<int>::iterator* iJobs;  // vetor que guarda a proximo elemento a ser alocado da sequncia de um job. 
 	int* vFuncaoGulosa;                 // guarda os valores da funcao gulosa para cada job.
@@ -215,44 +185,36 @@ void contrucaoGulosaAleatoriaLRC(std::vector<maquina>& maquinas, std::vector<op>
 	iJobs = new std::vector<int>::iterator[jobs.size()];
 	op_usadas = new bool[operacoes.size()];
 
-	for (unsigned int i = 0; i < operacoes.size(); i++)
-	{
+	for (unsigned int i = 0; i < operacoes.size(); i++){
 		op_usadas[i] = false;
 	}
-	for (unsigned int i = 0; i < jobs.size(); i++)
-	{
+	for (unsigned int i = 0; i < jobs.size(); i++){
 		iJobs[i] = jobs[i].Sequencia_tecnologica.begin();
 	}
 
 	// para cada iteracao aloca uma operacao a uma de suas maquinas disponiveis.
-	for (unsigned int j = 0; j < operacoes.size(); j++)
-	{
+	for (unsigned int j = 0; j < operacoes.size(); j++){
 		min = INT_MAX;
 		cont = 0;
 		// itera por todos os jobs, e calcula o valor da funcao gulosa para cada um.
-		for (unsigned int i = 0; i < jobs.size(); i++)
-		{
+		for (unsigned int i = 0; i < jobs.size(); i++){
 			// calcular funcao gulosa para o job.
-			if (iJobs[i] == jobs[i].Sequencia_tecnologica.end())
-			{
+			if (iJobs[i] == jobs[i].Sequencia_tecnologica.end()){
 				vFuncaoGulosa[i] = INT_MAX;
 			}
-			else
-			{
+			else{
 				vFuncaoGulosa[i] = operacoes[*iJobs[i]].Posicao_Tecnogica;
 			}
 
-			// adiciona a lista de restrita de candidatos.
-			if (vFuncaoGulosa[i] <= min)
-			{
+			// adiciona a lista restrita de candidatos.
+			if (vFuncaoGulosa[i] <= min){
 				LRC[cont % TAMANHO_LISTA_RESTRITIVA] = i;
 				min = vFuncaoGulosa[i];
 				cont++;
 			}
 		}
 		// escolher um elemento da lista retrita de candidatos aleatoriamente.
-		do
-		{
+		do{
 			indiceJob = LRC[rand() % TAMANHO_LISTA_RESTRITIVA];
 
 		} while ( vFuncaoGulosa[indiceJob] == INT_MAX );
@@ -265,19 +227,21 @@ void contrucaoGulosaAleatoriaLRC(std::vector<maquina>& maquinas, std::vector<op>
 		// incrementar iterador do job.
 		iJobs[indiceJob]++;
 	}
+	delete(LRC);
+	delete(vFuncaoGulosa);
+	delete(iJobs);
+	delete(op_usadas);
 	return;
 }
 
 
 
 // troca ordem de duas operacoes no grafo e na maquina.
-bool mover(grafoDisjuntivo* grafo, std::vector<op> operacoes, std::vector<maquina>& maquinas, unsigned int indiceM, unsigned int indice1, unsigned int indice2)
-{
+bool mover(grafoDisjuntivo* grafo, std::vector<op> operacoes, std::vector<maquina>& maquinas, unsigned int indiceM, unsigned int indice1, unsigned int indice2){
 	if (operacoes[maquinas[indiceM].Sequencia_Operacoes[indice1]].job == operacoes[maquinas[indiceM].Sequencia_Operacoes[indice2]].job)
 		return false;
 	
-	if (indice1 > indice2)
-	{
+	if (indice1 > indice2){
 		int aux = indice1;
 		indice1 = indice2;
 		indice2 = aux;
@@ -288,22 +252,18 @@ bool mover(grafoDisjuntivo* grafo, std::vector<op> operacoes, std::vector<maquin
 	grafo->MatrizAdjacencia[maquinas[indiceM].Sequencia_Operacoes[indice2]][maquinas[indiceM].Sequencia_Operacoes[indice1]] = 
 		operacoes[maquinas[indiceM].Sequencia_Operacoes[indice2]].peso;
 
-	if (indice1 == 0)
-	{
+	if (indice1 == 0){
 		grafo->MatrizAdjacencia[maquinas[indiceM].Sequencia_Operacoes[indice2]][maquinas[indiceM].Sequencia_Operacoes[indice2 + 1]] = -1;
 		grafo->MatrizAdjacencia[maquinas[indiceM].Sequencia_Operacoes[indice1]][maquinas[indiceM].Sequencia_Operacoes[indice2 + 1]] =
 			operacoes[maquinas[indiceM].Sequencia_Operacoes[indice1]].peso;
 	}
-	else
-	{
-		if (indice2 == maquinas[indiceM].Sequencia_Operacoes.size() - 1)
-		{
+	else{
+		if (indice2 == maquinas[indiceM].Sequencia_Operacoes.size() - 1){
 			grafo->MatrizAdjacencia[maquinas[indiceM].Sequencia_Operacoes[indice1-1]][maquinas[indiceM].Sequencia_Operacoes[indice1]] = -1;
 			grafo->MatrizAdjacencia[maquinas[indiceM].Sequencia_Operacoes[indice1 - 1]][maquinas[indiceM].Sequencia_Operacoes[indice2]] =
 				operacoes[maquinas[indiceM].Sequencia_Operacoes[indice1 - 1]].peso;
 		}
-		else
-		{
+		else{
 			grafo->MatrizAdjacencia[maquinas[indiceM].Sequencia_Operacoes[indice2]][maquinas[indiceM].Sequencia_Operacoes[indice2 + 1]] = -1;
 			grafo->MatrizAdjacencia[maquinas[indiceM].Sequencia_Operacoes[indice1]][maquinas[indiceM].Sequencia_Operacoes[indice2 + 1]] =
 				operacoes[maquinas[indiceM].Sequencia_Operacoes[indice1]].peso;
@@ -324,52 +284,48 @@ bool mover(grafoDisjuntivo* grafo, std::vector<op> operacoes, std::vector<maquin
 	return true;
 }
 
-int* melhorMelhora(std::vector<maquina>& maquinas, std::vector<op> operacoes, grafoDisjuntivo* grafo, int melhorSolucao)
-{
+int* melhorMelhora(std::stack<int> &ord_topologico_global, std::vector<maquina>& maquinas, std::vector<op> operacoes, grafoDisjuntivo* grafo, int melhorSolucao){
 	int* Vetor_Distancia = NULL;
 	int* Vetor_Distancia_Aux = NULL;
-	std::stack<int>* Pilha_Ordem_Topologica;
+	std::stack<int> Pilha_Ordem_Topologica;
 	int indiceMelhorMaquina;
 	int indiceMelhorOpSM;
 	int makespam;
 
+
 	// percorre operacoes de todas as maquinas.
-	for (std::vector<maquina>::iterator i = maquinas.begin(); i != maquinas.end(); i++)
-	{
-		for (unsigned int j = 0; j < i->Sequencia_Operacoes.size() - 1; j++)
-		{
+	for (std::vector<maquina>::iterator i = maquinas.begin(); i != maquinas.end(); i++){
+		for (unsigned int j = 0; j < i->Sequencia_Operacoes.size() - 1; j++){
 			makespam = -1;
-			if (mover(grafo, operacoes, maquinas, i - maquinas.begin(), j, j + 1) ) // troca a ordem de j com o proximo da maquina no grafo.
-			{
+
+			if (mover(grafo, operacoes, maquinas, i - maquinas.begin(), j, j + 1) ){ // troca a ordem de j com o proximo da maquina no grafo.
 				// calcular o makespam.
 				Pilha_Ordem_Topologica = orderarTopologico(*grafo);
-				if (!Pilha_Ordem_Topologica->empty())
-				{
+				
+				if (!Pilha_Ordem_Topologica.empty()){
 					Vetor_Distancia_Aux = maiorDistancia(*grafo, Pilha_Ordem_Topologica, grafo->Origem);
 					makespam = Vetor_Distancia_Aux[grafo->Fim];
 				}
-				delete(Pilha_Ordem_Topologica);
-				if (makespam < melhorSolucao && makespam != -1)
-				{
-					melhorSolucao = makespam;
+				
+				if (makespam < melhorSolucao && makespam != -1){
+					
 					delete(Vetor_Distancia);
+					melhorSolucao = makespam;
 					Vetor_Distancia = Vetor_Distancia_Aux;
 					indiceMelhorMaquina = i - maquinas.begin();
 					indiceMelhorOpSM = j;
 					// descomente essa linha para primeira melhora.
-					//return Vetor_Distancia;
+					// return Vetor_Distancia;
 				}
-				else
-				{
-					//delete(Vetor_Distancia_Aux);
+				else{
+					delete(Vetor_Distancia_Aux);
 				}
 				// mover de volta.
 				mover(grafo, operacoes, maquinas, i - maquinas.begin(), j, j + 1);
 			}
 		}
 	}
-	if (Vetor_Distancia != NULL)
-	{
+	if (Vetor_Distancia != NULL){
 		// atualizar o grafo.
 		mover(grafo, operacoes, maquinas, indiceMelhorMaquina, indiceMelhorOpSM, indiceMelhorOpSM + 1);
 	}
@@ -378,22 +334,17 @@ int* melhorMelhora(std::vector<maquina>& maquinas, std::vector<op> operacoes, gr
 }
 
 
-void colocaArestaConjuntiva(grafoDisjuntivo* grafo, std::vector<job> jobs, std::vector<op> operacoes)
-{
+void colocaArestaConjuntiva(grafoDisjuntivo* grafo, std::vector<job> jobs, std::vector<op> operacoes){
 	std::vector<int>::iterator aux;
 	// percorre os jobs.
-	for (std::vector<job>::iterator i = jobs.begin(); i != jobs.end(); i++)
-	{
+	for (std::vector<job>::iterator i = jobs.begin(); i != jobs.end(); i++){
 		// coloca aresta entre primeira operacao do job e a origem.
 		grafo->MatrizAdjacencia[grafo->Origem][*(i->Sequencia_tecnologica.begin())] = 0;
 
 		// percorre a sequencia tecnologica do job.
-		for (std::vector<int>::iterator j = i->Sequencia_tecnologica.begin(); j != i->Sequencia_tecnologica.end() - 1; j++)
-		{
+		for (unsigned int j = 0; j < i->Sequencia_tecnologica.size() - 1; j++){
 			// colocar aresta entre a operacao do job e a proxima na sequencia tecnologica.
-			aux = j;
-			aux++;
-			grafo->MatrizAdjacencia[*j][*aux] = operacoes[*j].peso;
+			grafo->MatrizAdjacencia[i->Sequencia_tecnologica[j]][i->Sequencia_tecnologica[j+1]] = operacoes[i->Sequencia_tecnologica[j]].peso;
 		}
 		// coloca aresta entre a ultima operacao e o fim no grafo.
 		grafo->MatrizAdjacencia[ *(i->Sequencia_tecnologica.end() - 1) ][grafo->Fim] = operacoes[*(i->Sequencia_tecnologica.end() - 1)].peso;
@@ -402,22 +353,21 @@ void colocaArestaConjuntiva(grafoDisjuntivo* grafo, std::vector<job> jobs, std::
 }
 
 
-void colocaArestaDisjuntiva(grafoDisjuntivo* grafo, std::vector<maquina> maquinas, std::vector<op> operacoes)
-{
+void colocaArestaDisjuntiva(grafoDisjuntivo* grafo, std::vector<maquina> maquinas, std::vector<op> operacoes){
 	std::vector<int>::iterator aux;
 	// percorre todas as maquinas
-	for (std::vector<maquina>::iterator i = maquinas.begin(); i != maquinas.end(); i++)
-	{
+	for (std::vector<maquina>::iterator i = maquinas.begin(); i != maquinas.end(); i++){
 		// percorre a sequencia de operacoes de uma maquina.
-		for (std::vector<int>::iterator j = i->Sequencia_Operacoes.begin(); j != i->Sequencia_Operacoes.end(); j++)
-		{
+		for (std::vector<int>::iterator j = i->Sequencia_Operacoes.begin(); j != i->Sequencia_Operacoes.end(); j++){
 			aux = j;
 			aux++;
 			// se nao e a ultima operacao.
-			if (aux != i->Sequencia_Operacoes.end())
-			{
+			if (aux != i->Sequencia_Operacoes.end()){
 				// coloca aresta entre operacao e sucessor na sequencia da maquina.
 				grafo->MatrizAdjacencia[*j][*aux] = operacoes[*j].peso;
+			}
+			else{
+				//
 			}
 		}
 	}

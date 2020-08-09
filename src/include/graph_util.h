@@ -42,12 +42,10 @@ typedef struct grafoDisjuntivo grafoDisjuntivo;
 
 
 
-void imprimirGrafo(grafoDisjuntivo grafo);
-
 bool ordenarTopologicoAux(grafoDisjuntivo grafo, int v, bool visitados[], bool visitadosLocal[], std::stack<int>* Pilha);
 
-std::stack<int>* orderarTopologico(grafoDisjuntivo grafo);
+std::stack<int> orderarTopologico(grafoDisjuntivo grafo);
 
-int * maiorDistancia(grafoDisjuntivo grafo, std::stack<int>* Pilha_Ord_Topologico, int Origem);
+int * maiorDistancia(grafoDisjuntivo grafo, std::stack<int> Pilha_Ord_Topologico, int Origem);
 
 #endif
