@@ -54,9 +54,11 @@ seus vizinhos. Quando a busca local não encontra nenhuma solução melhor que
 a solução corrente, o processo para, e uma nova iteração do GRASP é iniciada.
 
 O caminho crítico é o maior caminho simples da origem até o fim do grafo 
-disjuntivo. O caminho crítico é calculado usando uma mistura em um único
-loop do algoritmo de Tarjan para componentes fortemente conectados \cite{tarjan},
-ordenamento topologico \cite{Cormem} e maior caminho em um DAG \cite{longestPath}.
+disjuntivo. Para calcular o caminho crítico, primeiro as arestas são ordenadas
+topologicamente \cite{Cormem} ao mesmo tempo que se garante que o grafo não
+contém ciclos \cite{tarjan}, grafos disjuntivos com ciclos representam soluções não viáveis,
+além de não ser possivel calcular maior distância em grafos com ciclos. Tendo a
+ordem topologica do grafo a maior distância é calculada como em \cite{longestPath}.
 
 
 

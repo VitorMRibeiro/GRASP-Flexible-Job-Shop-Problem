@@ -32,7 +32,8 @@ bool DFS(int* tarjan_vetex_index, int* tarjan_lowlink, int& tarjan_min_index, gr
 
 	for(int i = 0; i < grafo.Tamanho; i++){
 		if(grafo.MatrizAdjacencia[indice][i] != -1 && tarjan_vetex_index[i] == 0){
-			DFS(tarjan_vetex_index, tarjan_lowlink, tarjan_min_index, grafo, Pilha, i);
+			if(!DFS(tarjan_vetex_index, tarjan_lowlink, tarjan_min_index, grafo, Pilha, i))
+				return false;
 
 			tarjan_lowlink[indice] = std::min(tarjan_lowlink[indice], tarjan_lowlink[i]);
 		}
@@ -66,7 +67,6 @@ std::stack<int> orderarTopologico(grafoDisjuntivo grafo){
 	memset(tarjan_vetex_index, 0, sizeof(int) * grafo.Tamanho);
 
 	if(DFS(tarjan_vetex_index, tarjan_lowlink, tarjan_min_index, grafo, Pilha, grafo.Origem)){
-		//std::cout << "ela ja nao e mais a minha pequena que pena que pena aaaaaaaaaa\n";
 		delete(tarjan_vetex_index);
 		delete(tarjan_lowlink);
 		
@@ -79,7 +79,7 @@ std::stack<int> orderarTopologico(grafoDisjuntivo grafo){
 // calcula a maior distancia da origem para cada vertice de um grafo ordenado.
 int* maiorDistancia(grafoDisjuntivo grafo, std::stack<int> Pilha_Ord_Topologica, int Origem){
 	int* MaiorDistancia = new int[grafo.Tamanho];
-	;
+
 	// inicia todas as distancias como -infinito.
 	memset(MaiorDistancia, INT_MIN, sizeof(int) * grafo.Tamanho);
 	MaiorDistancia[Origem] = 0;
