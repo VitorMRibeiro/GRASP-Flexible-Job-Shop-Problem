@@ -21,7 +21,9 @@ Se necessário altere as variaveis 'INCLUDE' e 'LIBS' no makefile para referir a
 INCLUDE = /usr/include
 LIB = /usr/lib32
 ```
-Compile o projeto com o make.
+## Build
+
+make.
 
 ## Uso
 
