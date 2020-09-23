@@ -3,7 +3,7 @@
 
 ![GanttChartExemple](GanttChartExemple.png)
 
-## Dependencias
+## Dependências
 
 glew e SDL2 
 
